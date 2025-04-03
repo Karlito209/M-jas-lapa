@@ -1,58 +1,115 @@
-<html>
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spēle ar Grozu un Zivīm</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background: #87ceeb; /* Debesu zila */
+            overflow: hidden;
+        }
+
+        #myCanvas {
+            background-color: #f0f8ff;
+            display: block;
+            margin: auto;
+            border: 1px solid black;
+        }
+    </style>
+</head>
 <body>
-<canvas id="myCanvas" width=300 height=300 style="border:1px solid">  </canvas> 
-<script>
+    <canvas id="myCanvas" width="500" height="500"></canvas>
 
- var ctx = myCanvas.getContext("2d");
+    <script>
+        var canvas = document.getElementById("myCanvas");
+        var ctx = canvas.getContext("2d");
 
- function MyKeyDownHandler (MyEvent) { 
-   if (MyEvent.keyCode == 37 && bug_x > 0) {bug_x = bug_x - 10};  
-   if (MyEvent.keyCode == 39 && bug_x+BugImg.width < myCanvas.width)
-            {bug_x = bug_x+10};
-   }
+        // Grozs
+        var bucket_x = 200;
+        var bucket_y = 450;
+        var BucketImg = new Image();
+        BucketImg.src = "https://creazilla-store.fra1.digitaloceanspaces.com/cliparts/11199/bucket-fish-clipart-xl.png"; // Groza attēls
+        var bucketWidth = 100; // Groza attēls
+        var bucketHeight = 100; // Groza attēls
 
- addEventListener("keydown", MyKeyDownHandler); 
+        // Groza hitbox (augstāks)
+        var bucketHitboxWidth = 80;  // Groza hitbox izmērs
+        var bucketHitboxHeight = 80;  // Groza hitbox izmērs
 
- var bug_x = 0;
- var bug_y = 0;
- var BugImg = new Image();
- BugImg.src = "https://s2js.com/img/etc/ladybug.png";
+        // Zivis
+        var fish_x = Math.random() * canvas.width;
+        var fish_y = 0;
+        var FishImg = new Image();
+        FishImg.src = "https://media.voog.com/0000/0046/6916/photos/ahven.png"; // Zivs attēls
+        var fishWidth = 60; // Zivs attēls
+        var fishHeight = 60; // Zivs attēls
 
- var melon_x = 0;
- var melon_y = 0;
- var MelonImg = new Image();
- MelonImg.src = "https://s2js.com/img/etc/watermelon2.png";
+        // Zivs hitbox
+        var fishHitboxWidth = 40;    // Zivs hitbox izmērs
+        var fishHitboxHeight = 40;   // Zivs hitbox izmērs
 
- var score = 0;
+        var score = 0;
 
- function ImagesTouching(x1, y1, img1, x2, y2, img2) {
-          if (x1 >= x2+img2.width || x1+img1.width <= x2) return false;   // too far to the side
-          if (y1 >= y2+img2.height || y1+img1.height <= y2) return false; // too far above/below
-          return true;                                                    // otherwise, overlap   
-          }
-          function Do_a_Frame () {
-            ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
-        
-            ctx.fillStyle= "purple";
-            ctx.font = "20px Arial";
-            ctx.fillText("Score: " + score, 0, 20);
-            bug_y = myCanvas.height - BugImg.height;
-            ctx.drawImage(BugImg, bug_x, bug_y);
-        
-            melon_y = melon_y + 3;
-            if (melon_y > myCanvas.height) {
-                melon_y= 0;
-                melon_x= Math.random() * (myCanvas.width - MelonImg.width);
-                }   
-            ctx.drawImage(MelonImg, melon_x, melon_y);
-        
-            if (ImagesTouching(bug_x, bug_y, BugImg, melon_x, melon_y, MelonImg)) {
-                score= score + 1;
-                melon_x= -MelonImg.width;
-                }
+        // Vadības funkcija grozam (izmanto WASD)
+        function MyKeyDownHandler(event) {
+            if (event.keyCode == 37 && bucket_x > 0) {  // Kreisā bulta vai "A" (pārvieto grozu pa kreisi)
+                bucket_x = bucket_x - 10;
             }
-            setInterval(Do_a_Frame, 25);
+            if (event.keyCode == 39 && bucket_x + bucketWidth < canvas.width) {  // Labā bulta vai "D" (pārvieto grozu pa labi)
+                bucket_x = bucket_x + 10;
+            }
+            if (event.keyCode == 38 && bucket_y > 0) {  // Augšējā bulta vai "W" (pārvieto grozu uz augšu)
+                bucket_y = bucket_y - 10;
+            }
+            if (event.keyCode == 40 && bucket_y + bucketHeight < canvas.height) {  // Apakšējā bulta vai "S" (pārvieto grozu uz leju)
+                bucket_y = bucket_y + 10;
+            }
+        }
 
-</script>
+        addEventListener("keydown", MyKeyDownHandler);
+
+        // Funkcija, lai pārbaudītu, vai attēli saskaras
+        function ImagesTouching(x1, y1, img1, x2, y2, img2) {
+            // Mazāki hitboxi tiek izmantoti šeit
+            if (x1 >= x2 + fishHitboxWidth || x1 + bucketHitboxWidth <= x2) return false;
+            if (y1 >= y2 + fishHitboxHeight || y1 + bucketHitboxHeight <= y2) return false;
+            return true;
+        }
+
+        // Galvenā spēles funkcija
+        function Do_a_Frame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);  // Iztīra ekrānu
+
+            ctx.fillStyle = "purple";
+            ctx.font = "20px Arial";
+            ctx.fillText("Score: " + score, 10, 30);  // Attēlo rezultātu
+
+            // Zīmē grozu (ar lielākiem izmēriem)
+            ctx.drawImage(BucketImg, bucket_x, bucket_y, bucketWidth, bucketHeight);
+
+            fish_y += 3;  // Zivs kustas uz leju
+
+            // Ja zivs ir izgājusi no ekrāna, to novieto augšā ar jaunu nejaušu pozīciju
+            if (fish_y > canvas.height) {
+                fish_y = 0;
+                fish_x = Math.random() * (canvas.width - fishWidth);  // Jauna zivs parādās augšā un nejauša horizontāla pozīcija
+            }
+
+            // Zīmē zivi (ar lielākiem izmēriem)
+            ctx.drawImage(FishImg, fish_x, fish_y, fishWidth, fishHeight);
+
+            // Pārbauda, vai grozs saskaras ar zivi, izmantojot mazākus hitboxus
+            if (ImagesTouching(bucket_x, bucket_y, BucketImg, fish_x, fish_y, FishImg)) {  
+                score += 1;  // Pievieno punktu
+                fish_y = -fishHeight;  // Pārvieto zivi ārā no ekrāna, līdz tā kļūst redzama no jauna
+            }
+        }
+
+        setInterval(Do_a_Frame, 25);  // Ik pēc 25ms atjauno ekrānu
+    </script>
 </body>
 </html>
