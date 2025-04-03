@@ -1,6 +1,44 @@
-.atteli{
-    display: flex;
-    justify-content: center;
-    gap: 50px;
-    flex-wrap: wrap;
+body {
+    background: linear-gradient(to bottom, white, #003366); /* no baltas uz tumši zilu */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Other styles for header and sections */
+header {
+    background-color: #333;
+    color: white;
+    padding: 10px 0;
+    text-align: center;
+}
+
+header nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+header nav ul li {
+    display: inline;
+    margin: 0 15px;
+}
+
+header nav ul li a {
+    color: white;
+    text-decoration: none;
+}
+
+section {
+    padding: 20px;
+}
+
+section h1, section h2 {
+    color: #003366; /* Tumši zils */
+}
+
+footer {
+    text-align: center;
+    background-color: #333;
+    color: white;
+    padding: 10px 0;
 }
