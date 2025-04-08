@@ -9,12 +9,13 @@
             margin: 0;
             padding: 0;
             height: 100%;
-            background: #87ceeb; /* Debesu zila */
+            background: #87ceeb;
             overflow: hidden;
         }
 
         #myCanvas {
-            background-color: #f0f8ff;
+            background: url('https://muralsyourway.vtexassets.com/arquivos/ids/238964-825-auto?width=825&height=auto&aspect=true');
+            background-size: cover;
             display: block;
             margin: auto;
             border: 1px solid black;
@@ -29,87 +30,74 @@
         var ctx = canvas.getContext("2d");
 
         // Grozs
+        var bucketWidth = 100;
+        var bucketHeight = 100;
         var bucket_x = 200;
-        var bucket_y = 450;
-        var BucketImg = new Image();
-        BucketImg.src = "https://creazilla-store.fra1.digitaloceanspaces.com/cliparts/11199/bucket-fish-clipart-xl.png"; // Groza attēls
-        var bucketWidth = 100; // Groza attēls
-        var bucketHeight = 100; // Groza attēls
+        var bucket_y = canvas.height - bucketHeight;
 
-        // Groza hitbox (augstāks)
-        var bucketHitboxWidth = 80;  // Groza hitbox izmērs
-        var bucketHitboxHeight = 80;  // Groza hitbox izmērs
+        var BucketImg = new Image();
+        BucketImg.src = "https://creazilla-store.fra1.digitaloceanspaces.com/cliparts/11199/bucket-fish-clipart-xl.png";
+
+        var bucketHitboxWidth = bucketWidth;
+        var bucketHitboxHeight = bucketHeight;
 
         // Zivis
-        var fish_x = Math.random() * canvas.width;
-        var fish_y = 0;
-        var FishImg = new Image();
-        FishImg.src = "https://media.voog.com/0000/0046/6916/photos/ahven.png"; // Zivs attēls
-        var fishWidth = 60; // Zivs attēls
-        var fishHeight = 60; // Zivs attēls
+        var fishWidth = 60;
+        var fishHeight = 60;
+        var fish_x = Math.random() * (canvas.width - fishWidth);
+        var fish_y = -fishHeight;
 
-        // Zivs hitbox
-        var fishHitboxWidth = 40;    // Zivs hitbox izmērs
-        var fishHitboxHeight = 40;   // Zivs hitbox izmērs
+        var FishImg = new Image();
+        FishImg.src = "https://media.voog.com/0000/0046/6916/photos/ahven.png";
+
+        var fishHitboxWidth = fishWidth;
+        var fishHitboxHeight = fishHeight;
 
         var score = 0;
 
-        // Vadības funkcija grozam (izmanto WASD)
         function MyKeyDownHandler(event) {
-            if (event.keyCode == 37 && bucket_x > 0) {  // Kreisā bulta vai "A" (pārvieto grozu pa kreisi)
-                bucket_x = bucket_x - 10;
+            if (event.keyCode == 37 && bucket_x > 0) {
+                bucket_x -= 10;
             }
-            if (event.keyCode == 39 && bucket_x + bucketWidth < canvas.width) {  // Labā bulta vai "D" (pārvieto grozu pa labi)
-                bucket_x = bucket_x + 10;
-            }
-            if (event.keyCode == 38 && bucket_y > 0) {  // Augšējā bulta vai "W" (pārvieto grozu uz augšu)
-                bucket_y = bucket_y - 10;
-            }
-            if (event.keyCode == 40 && bucket_y + bucketHeight < canvas.height) {  // Apakšējā bulta vai "S" (pārvieto grozu uz leju)
-                bucket_y = bucket_y + 10;
+            if (event.keyCode == 39 && bucket_x + bucketWidth < canvas.width) {
+                bucket_x += 10;
             }
         }
 
         addEventListener("keydown", MyKeyDownHandler);
 
-        // Funkcija, lai pārbaudītu, vai attēli saskaras
         function ImagesTouching(x1, y1, img1, x2, y2, img2) {
-            // Mazāki hitboxi tiek izmantoti šeit
             if (x1 >= x2 + fishHitboxWidth || x1 + bucketHitboxWidth <= x2) return false;
             if (y1 >= y2 + fishHitboxHeight || y1 + bucketHitboxHeight <= y2) return false;
             return true;
         }
 
-        // Galvenā spēles funkcija
         function Do_a_Frame() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);  // Iztīra ekrānu
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = "purple";
+            ctx.fillStyle = "black"; // Melnā krāsa punktiem
             ctx.font = "20px Arial";
-            ctx.fillText("Score: " + score, 10, 30);  // Attēlo rezultātu
+            ctx.fillText("Score: " + score, 10, 30);
 
-            // Zīmē grozu (ar lielākiem izmēriem)
             ctx.drawImage(BucketImg, bucket_x, bucket_y, bucketWidth, bucketHeight);
 
-            fish_y += 3;  // Zivs kustas uz leju
+            fish_y += 3;
 
-            // Ja zivs ir izgājusi no ekrāna, to novieto augšā ar jaunu nejaušu pozīciju
             if (fish_y > canvas.height) {
-                fish_y = 0;
-                fish_x = Math.random() * (canvas.width - fishWidth);  // Jauna zivs parādās augšā un nejauša horizontāla pozīcija
+                fish_y = -fishHeight;
+                fish_x = Math.random() * (canvas.width - fishWidth);
             }
 
-            // Zīmē zivi (ar lielākiem izmēriem)
             ctx.drawImage(FishImg, fish_x, fish_y, fishWidth, fishHeight);
 
-            // Pārbauda, vai grozs saskaras ar zivi, izmantojot mazākus hitboxus
-            if (ImagesTouching(bucket_x, bucket_y, BucketImg, fish_x, fish_y, FishImg)) {  
-                score += 1;  // Pievieno punktu
-                fish_y = -fishHeight;  // Pārvieto zivi ārā no ekrāna, līdz tā kļūst redzama no jauna
+            if (ImagesTouching(bucket_x, bucket_y, BucketImg, fish_x, fish_y, FishImg)) {
+                score += 1;
+                fish_y = -fishHeight;
+                fish_x = Math.random() * (canvas.width - fishWidth);
             }
         }
 
-        setInterval(Do_a_Frame, 25);  // Ik pēc 25ms atjauno ekrānu
+        setInterval(Do_a_Frame, 25);
     </script>
 </body>
 </html>
